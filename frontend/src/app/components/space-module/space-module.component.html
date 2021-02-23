@@ -1,0 +1,33 @@
+<div fxLayout="column" class="space-module" fxLayoutGap="10px" >
+  <h3>{{moduleName}}</h3>
+  <div fxLayout="row" fxLayoutAlign="space-between" fxFlexFill>
+    <span>Power</span>
+    <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="2px">
+      <span>{{power | nullValueSave}}</span>
+      <div fxFlex="20px" fxLayout="row" fxLayoutAlign="center">
+      <img src="/assets/Power.png" height="20" >
+      </div>
+    </div>
+  </div>
+  <div fxLayout="row" fxLayoutAlign="space-between center" fxFlexFill>
+    <span>Oxygen</span>
+    <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="2px">
+      <span>{{airConsumption | nullValueSave}}</span>
+      <div fxFlex="20px" fxLayout="row" fxLayoutAlign="center">
+        <img src="/assets/Oxygen.png" height="20" >
+      </div>
+    </div>
+
+  </div>
+  <div fxLayout="row" fxLayoutAlign="space-between" fxFlexFill>
+    <span>Weight</span>
+    <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="2px">
+      <span>{{weight | nullValueSave}}</span>
+      <div fxFlex="20px" fxLayout="row" fxLayoutAlign="center">
+        <img src="/assets/Weight.png" height="20" >
+      </div>
+    </div>
+  </div>
+  <span class="status-message">{{message}}</span>
+
+</div>

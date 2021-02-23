@@ -1,0 +1,23 @@
+.space-module {
+  background-image: linear-gradient(to bottom, rgba(31, 42, 60,1), rgba(31, 42, 60,0.6));
+  color: rgb(185,193, 204);
+  border-style: solid;
+  border-color: rgb(66,78,94);
+  border-width: 2px;
+  width: 270px;
+  min-height: 210px;
+  padding: 10px;
+
+  h3 {
+    text-align: center;
+    color: rgb(183, 189, 158);
+    margin: -10px -10px;
+    padding: 10px 10px;
+    background-image: linear-gradient(to bottom right, rgba(22, 55, 86,1), rgba(22, 55, 86,0));
+  }
+}
+
+
+.status-message {
+  color: rgb(183, 189, 158);
+}

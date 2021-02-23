@@ -1,0 +1,77 @@
+<div fxLayout="row" class="space-station-top-bar"  ngClass.lt-lg="space-station-top-bar-sm">
+  <div fxFlex="15" fxHide.lt-lg></div>
+  <div fxFlex>
+    <div class="trapez"></div>
+    <div class="trapez-overlay" ngClass.lt-sm="trapez-overlay-sm">
+      <div fxLaxout="row" fxLayoutAlign="space-between center" class="trapez-overlay-content"  ngClass.lt-lg="trapez-overlay-content-sm">
+         <span fxFlex="33" class="text-left" fxHide.lt-sm>{{currentTime | date:'HH:mm:ss '}}</span>
+        <div fxFlex>
+          <h1>Space Station Situation</h1>
+        </div>
+        <div  fxFlex="33" fxLayout="row" fxLayout.lt-lg="column" fxLayoutAlign="end center" fxLayoutAlign.lt-lg="start end" fxLayoutGap="10px">
+          <div fxLayout="row" fxLayoutGap="2px">
+            <span>{{spaceStationService.spaceStationStatus.getValue().power | nullValueSave}}</span>
+            <div fxFlex="20px" fxLayout="row" fxLayoutAlign="center">
+              <img src="/assets/Power.png" height="20" >
+            </div>
+          </div>
+          <div fxLayout="row" fxLayoutGap="2px">
+            <span>{{spaceStationService.spaceStationStatus.getValue().airConsumption | nullValueSave}}</span>
+            <div fxFlex="20px" fxLayout="row" fxLayoutAlign="center">
+              <img src="/assets/Oxygen.png" height="20" >
+            </div>
+          </div>
+          <div fxLayout="row" fxLayoutGap="2px">
+            <span>{{spaceStationService.spaceStationStatus.getValue().weight | nullValueSave}}</span>
+            <div fxFlex="20px" fxLayout="row" fxLayoutAlign="center">
+              <img src="/assets/Weight.png" height="20" >
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div fxFlex="15" fxHide.lt-lg></div>
+</div>
+
+
+
+<div fxLayout="row" fxLayoutAlign="space-between" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="center center" fxFlexFill class="space-modules">
+  <div fxLayout="column" class="space-modules-group">
+    <ccss-space-module *ngFor="let module of leftSideModules"
+                       [moduleName]="module.moduleName"
+                       [power]="module.power"
+                       [airConsumption]="module.airConsumption"
+                       [weight]="module.weight"
+                       [message]="module.statusMessage"
+                       fxFlex="0 0 270px"></ccss-space-module>
+  </div>
+
+  <div fxLayout="column"  class="space-modules-group">
+    <ccss-space-module *ngFor="let module of rightSideModules"
+                       [moduleName]="module.moduleName"
+                       [power]="module.power"
+                       [airConsumption]="module.airConsumption"
+                       [weight]="module.weight"
+                       [message]="module.statusMessage"
+                       fxFlex="0 0 270px"></ccss-space-module>
+  </div>
+</div>
+
+<footer>
+  <span *ngIf="spaceStationStatusAvailable(); else emptyStatusMessage">{{spaceStationService.spaceStationStatus.getValue().statusMessage}}</span>
+</footer>
+
+<router-outlet></router-outlet>
+
+
+<div *ngIf="!spaceStationService.isBackendUp.getValue()" class="no-connection"><span class="blink">Connection to space station lost</span></div>
+
+<ng-template #emptyStatusMessage>
+  <span class="error-message">No status for the space station available</span>
+</ng-template>
+
+<!-- A hidden image as a workaround to preload the "no-connection" error image -->
+<img src="/assets/space-no-connection.svg" width="0" height="0">
