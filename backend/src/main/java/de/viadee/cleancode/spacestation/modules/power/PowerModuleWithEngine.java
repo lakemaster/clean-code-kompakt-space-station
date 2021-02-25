@@ -7,7 +7,7 @@ import de.viadee.cleancode.spacestation.modules.DailyWorkResult;
 @Component
 public class PowerModuleWithEngine {
 
-	private PowerModule powerModule;
+	private final PowerModule powerModule;
 
 	private boolean engineActivated = false;
 
