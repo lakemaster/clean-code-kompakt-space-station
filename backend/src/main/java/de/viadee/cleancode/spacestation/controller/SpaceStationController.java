@@ -19,6 +19,11 @@ import de.viadee.cleancode.spacestation.service.SpaceStationStatus;
 @Controller
 public class SpaceStationController {
 
+    public static final String SUPPLY = "supply";
+    public static final String POWER = "power";
+    public static final String HABITATION = "habitation";
+    public static final String SHUTTLE = "shuttle";
+    public static final String OVERALL = "overall";
     @Autowired
     private SupplyModule supplyModule;
 
@@ -32,24 +37,22 @@ public class SpaceStationController {
     private Shuttle shuttleModule;
 
     public HashMap<String, DailyWorkResult> doDailyWork() {
-        HashMap<String, DailyWorkResult> dayWorRes = new HashMap<String, DailyWorkResult>();
-        dayWorRes.put("supply", supplyModule.doDailyWork());
-        dayWorRes.put("power", powerEngineModule.doDailyWork());
-        dayWorRes.put("habitation", habitationModule.doDailyWork());
+        HashMap<String, DailyWorkResult> dayWorRes = new HashMap<>();
+        dayWorRes.put(SUPPLY, supplyModule.doDailyWork());
+        dayWorRes.put(POWER, powerEngineModule.doDailyWork());
+        dayWorRes.put(HABITATION, habitationModule.doDailyWork());
         shuttleModule.setType(ShuttleType.ORION);
-        dayWorRes.put("shuttle", shuttleModule.doDailyWork());
-        dayWorRes.put("overall", getOverallDailyWorkResult(dayWorRes));
+        dayWorRes.put(SHUTTLE, shuttleModule.doDailyWork());
+        dayWorRes.put(OVERALL, getOverallDailyWorkResult(dayWorRes));
         return dayWorRes;
     }
 
     private DailyWorkResult getOverallDailyWorkResult(HashMap<String, DailyWorkResult> dayWorRes) {
         DailyWorkResult overallResult = new DailyWorkResult();
         for (Map.Entry<String, DailyWorkResult> rSet : dayWorRes.entrySet()) {
-            // evil
             DailyWorkResult r = rSet.getValue();
             if (r != null) {
-                if (r.getReturnCode().equals("-1")) // TODO use Enum instead
-                {
+                if (r.getReturnCode().equals("-1")) {
                     overallResult.setReturnCode("-1");
                     overallResult.setErrorMessage(overallResult.getErrorMessage() + " -> " + r.getErrorMessage());
                 }
@@ -63,12 +66,12 @@ public class SpaceStationController {
         return overallResult;
     }
 
-    public SpaceStationStatus calculateStationStatus() throws Exception {
+    public SpaceStationStatus calculateStationStatus() {
         HashMap<String, DailyWorkResult> workResults = doDailyWork();
         return getSpaceStationStatus(workResults, workResults.get("overall"));
     }
 
-    private SpaceStationStatus getSpaceStationStatus(HashMap<String, DailyWorkResult> workResults, DailyWorkResult overallResult) throws Exception {
+    private SpaceStationStatus getSpaceStationStatus(HashMap<String, DailyWorkResult> workResults, DailyWorkResult overallResult) {
         SpaceStationStatus spaceStationStatus;
         if (overallResult != null && overallResult.getReturnCode() != null) {
             if (overallResult.getReturnCode().equals("-1")) {
@@ -83,16 +86,16 @@ public class SpaceStationController {
         } else {
             spaceStationStatus = new SpaceStationStatus(StationStatus.UNKNOWN, "Status undefined.");
         }
-        if(spaceStationStatus.getStatus().equals(StationStatus.ERROR) && spaceStationStatus.getStatusMessage().equals("All good!!")){
-            throw new Exception(spaceStationStatus.getStatusMessage());
+        if(spaceStationStatus.getStatus().equals(StationStatus.ERROR) && spaceStationStatus.getStatusMessage().equals("All good!!")) {
+            throw new RuntimeException(spaceStationStatus.getStatusMessage());
         }
 
         spaceStationStatus.setAirConsumption(overallResult.getAirconsumption());
         spaceStationStatus.setWeight(overallResult.getWeight());
         spaceStationStatus.setPower(overallResult.getPower());
 
-        for ( Map.Entry<String, DailyWorkResult> entry : workResults.entrySet() ) {
-            if (entry.getKey() != "overall") {
+        for (Map.Entry<String, DailyWorkResult> entry : workResults.entrySet()) {
+            if (!entry.getKey().equals(OVERALL)) {
                 SpaceStationModuleStatus status = getModuleStatus(workResults, entry.getKey());
                 spaceStationStatus.addSpaceStationModule(status);
             }
@@ -100,10 +103,10 @@ public class SpaceStationController {
         return spaceStationStatus;
     }
 
-    private SpaceStationModuleStatus getModuleStatus(HashMap<String, DailyWorkResult> workResults, String shuttle2) {
-        DailyWorkResult shuttle = workResults.get(shuttle2);
+    private SpaceStationModuleStatus getModuleStatus(HashMap<String, DailyWorkResult> workResults, String moduleName) {
+        DailyWorkResult shuttle = workResults.get(moduleName);
         return new SpaceStationModuleStatus(
-                upper(shuttle2),
+                firstLetterUpperCase(moduleName),
                 shuttle.getAirconsumption(),
                 shuttle.getWeight(),
                 shuttle.getPower(),
@@ -111,7 +114,7 @@ public class SpaceStationController {
         );
     }
 
-    private String upper(String s) {
+    private String firstLetterUpperCase(String s) {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 }

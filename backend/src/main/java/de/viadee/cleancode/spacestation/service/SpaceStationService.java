@@ -17,13 +17,8 @@ public class SpaceStationService {
 
     @RequestMapping("/spacestation/status")
     @CrossOrigin
-    public SpaceStationStatus getSpaceStationStatus() throws Exception {
-		try {
+    public SpaceStationStatus getSpaceStationStatus() {
 			return controller.calculateStationStatus();
-		} catch (Throwable th) {
-			// hier nix machen
-		}
-		return null;
     }
 
 }
