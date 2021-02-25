@@ -202,7 +202,7 @@ public class Shuttle implements Module {
 				workResult.setErrorMessage("Coffee could not be brewed. Work canceled.");
 			}
 			
-			if (!supplyModule.hasSalamiSupply()) supplyModule.getPizzaOven().refillSalamiStorage(100);
+			if (!supplyModule.hasSalamiSupply()) supplyModule.getPizzaOven().getSalamiStorage().refillSalamiStorage(100);
 			
 			//TODO Pizzamenge auf Basis der Astronauten einstellen, erstmal jede Sorte machen
 			supplyModule.getPizzaOven().makePizza(PizzaType.CHEESY_CRUST);

@@ -38,7 +38,11 @@ public class SpaceStationController {
         dayWorRes.put("habitation", habitationModule.doDailyWork());
         shuttleModule.setType(ShuttleType.ORION);
         dayWorRes.put("shuttle", shuttleModule.doDailyWork());
-        // DailyWorkResult overallResult2 = new DailyWorkResult() ;
+        dayWorRes.put("overall", getOverallDailyWorkResult(dayWorRes));
+        return dayWorRes;
+    }
+
+    private DailyWorkResult getOverallDailyWorkResult(HashMap<String, DailyWorkResult> dayWorRes) {
         DailyWorkResult overallResult = new DailyWorkResult();
         for (Map.Entry<String, DailyWorkResult> rSet : dayWorRes.entrySet()) {
             // evil
@@ -55,15 +59,16 @@ public class SpaceStationController {
                 }
                 overallResult.setWeight(overallResult.getWeight() + r.getWeight());
             }
-
         }
-        dayWorRes.put("overall", overallResult);
-        return dayWorRes;
+        return overallResult;
     }
 
     public SpaceStationStatus calculateStationStatus() throws Exception {
         HashMap<String, DailyWorkResult> workResults = doDailyWork();
-        DailyWorkResult overallResult = workResults.get("overall");
+        return getSpaceStationStatus(workResults, workResults.get("overall"));
+    }
+
+    private SpaceStationStatus getSpaceStationStatus(HashMap<String, DailyWorkResult> workResults, DailyWorkResult overallResult) throws Exception {
         SpaceStationStatus spaceStationStatus;
         if (overallResult != null && overallResult.getReturnCode() != null) {
             if (overallResult.getReturnCode().equals("-1")) {
@@ -86,55 +91,27 @@ public class SpaceStationController {
         spaceStationStatus.setWeight(overallResult.getWeight());
         spaceStationStatus.setPower(overallResult.getPower());
 
-        DailyWorkResult shuttle = workResults.get("shuttle");
-        SpaceStationModuleStatus shuttleModuleStatus = new SpaceStationModuleStatus(
-                "Shuttle",
+        for ( Map.Entry<String, DailyWorkResult> entry : workResults.entrySet() ) {
+            if (entry.getKey() != "overall") {
+                SpaceStationModuleStatus status = getModuleStatus(workResults, entry.getKey());
+                spaceStationStatus.addSpaceStationModule(status);
+            }
+        }
+        return spaceStationStatus;
+    }
+
+    private SpaceStationModuleStatus getModuleStatus(HashMap<String, DailyWorkResult> workResults, String shuttle2) {
+        DailyWorkResult shuttle = workResults.get(shuttle2);
+        return new SpaceStationModuleStatus(
+                upper(shuttle2),
                 shuttle.getAirconsumption(),
                 shuttle.getWeight(),
                 shuttle.getPower(),
                 shuttle.getErrorMessage()
         );
+    }
 
-        DailyWorkResult power = workResults.get("power");
-        SpaceStationModuleStatus powerModuleStatus = new SpaceStationModuleStatus(
-                "Power",
-                power.getAirconsumption(),
-                power.getWeight(),
-                power.getPower(),
-                power.getErrorMessage()
-        );
-
-        /*spaceStationStatus.setPowerPackCapacity(power.getPowerPackCapacity());
-        spaceStationStatus.setPowerPowerPackActive(power.isPowerPackActive());
-        spaceStationStatus.setPowerSolarSailAct(power.isSolarSailActive());*/
-
-
-        DailyWorkResult supply = workResults.get("supply");
-        SpaceStationModuleStatus supplyModuleStatus = new SpaceStationModuleStatus(
-                "Supply",
-                supply.getAirconsumption(),
-                supply.getWeight(),
-                supply.getPower(),
-                supply.getErrorMessage()
-        );
-
-
-        DailyWorkResult habitation = workResults.get("habitation");
-        SpaceStationModuleStatus habitationModuleStatus = new SpaceStationModuleStatus(
-                "Habitation",
-                habitation.getAirconsumption(),
-                habitation.getWeight(),
-                habitation.getPower(),
-                habitation.getErrorMessage()
-        );
-
-        spaceStationStatus.addSpaceStationModule(shuttleModuleStatus);
-        spaceStationStatus.addSpaceStationModule(powerModuleStatus);
-        spaceStationStatus.addSpaceStationModule(supplyModuleStatus);
-        spaceStationStatus.addSpaceStationModule(habitationModuleStatus);
-
-        return spaceStationStatus;
-
-
+    private String upper(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 }

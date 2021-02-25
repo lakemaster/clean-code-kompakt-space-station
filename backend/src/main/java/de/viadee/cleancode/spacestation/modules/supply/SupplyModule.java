@@ -85,6 +85,6 @@ public class SupplyModule implements Module {
     }
 
 	public boolean hasSalamiSupply() {
-		return pizzaOven.salamiStorage > 0;
+		return pizzaOven.getSalamiStorage().getStorage() > 0;
 	}
 }
