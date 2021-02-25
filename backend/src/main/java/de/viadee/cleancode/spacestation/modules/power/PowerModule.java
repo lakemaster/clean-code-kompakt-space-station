@@ -6,14 +6,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import de.viadee.cleancode.spacestation.modules.DailyWorkResult;
 import de.viadee.cleancode.spacestation.modules.Module;
 
 @Service
-public class PowerModule implements Module {
+public class PowerModule
+		implements Module {
 
 	public boolean solarSailActive = false;
 
@@ -33,96 +33,86 @@ public class PowerModule implements Module {
 
 	@Override
 	public Double getWeight() {
-		return weight;
+		return this.weight;
 	}
 
 	@Override
 	public int getPowerConsumption() {
-		return powerConsumption;
+		return this.powerConsumption;
 	}
 
 	@Override
 	public Double getAirConsumption() {
-		return Double.valueOf(airConsumption);
+		return Double.valueOf(this.airConsumption);
 	}
 
 	@Override
 	public DailyWorkResult doDailyWork() {
 		DailyWorkResult result = new DailyWorkResult();
-		activateSolarSail();
-		if (!solarSailActive) {
-			result.setReturnCode("-1");
-			result.setErrorMessage("Solar sail could not be activated!");
-			return result;
+		this.activateSolarSail();
+		if (!this.solarSailActive) {
+			return this.createErrorResult("Solar sail could not be activated!");
 		}
-		rechargePowerPack();
+		this.rechargePowerPack();
 		Properties powerPackProps = new Properties();
 		try {
-			powerPackProps.load(getClass().getClassLoader().getResourceAsStream("application.properties"));
+			powerPackProps.load(this.getClass().getClassLoader().getResourceAsStream("application.properties"));
 		} catch (IOException e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-			result.setReturnCode("-1");
-			result.setErrorMessage("Power pack not found: " + e.getMessage());
-			return result;
+			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+			return this.createErrorResult("Power pack not found: " + e.getMessage());
 		}
-		if (Integer.valueOf(powerPackCapacity)
+		if (Integer.valueOf(this.powerPackCapacity)
 				.equals(Integer.valueOf(powerPackProps.getProperty("power.powerPack.capacity.initial")))) {
-			result.setReturnCode("-1");
-			result.setErrorMessage("Power pack could not be recharged!");
-			return result;
+			return this.createErrorResult("Power pack could not be recharged!");
 		}
-		if (powerPackCapacity >= 2) {
-			solarSailActive = false;
+		if (this.powerPackCapacity >= 2) {
+			this.solarSailActive = false;
 		} else {
-			result.setReturnCode("-1");
-			result.setErrorMessage("Solar sail could not be deactivated!");
-			return result;
+			return this.createErrorResult("Solar sail could not be deactivated!");
 		}
 		result.setReturnCode("0");
-		result.setPowerPackActive(powerPackActive);
-		result.setSolarSailActive(solarSailActive);
-		result.setPowerPackCapacity(powerPackCapacity);
+		result.setPowerPackActive(this.powerPackActive);
+		result.setSolarSailActive(this.solarSailActive);
+		result.setPowerPackCapacity(this.powerPackCapacity);
+		return result;
+	}
+
+	private DailyWorkResult createErrorResult(String errorText) {
+		DailyWorkResult result = new DailyWorkResult();
+		result.setReturnCode("-1");
+		result.setErrorMessage(errorText);
 		return result;
 	}
 
 	private void activateSolarSail() {
-		if (!solarSailActive) {
-			powerPackActive = true;
-			if (powerPackCapacity >= 2) {
+		if (!this.solarSailActive) {
+			this.powerPackActive = true;
+			if (this.powerPackCapacity >= 2) {
 				// Extend solair sail
-				powerPackCapacity = powerPackCapacity - 2;
-				solarSailActive = true;
+				this.powerPackCapacity = this.powerPackCapacity - 2;
+				this.solarSailActive = true;
 			}
 		}
-		return;
 	}
 
 	protected void rechargePowerPack() {
 		Properties powerPackProps = new Properties();
 		try {
-			powerPackProps.load(getClass().getClassLoader().getResourceAsStream("application.properties"));
+			powerPackProps.load(this.getClass().getClassLoader().getResourceAsStream("application.properties"));
 		} catch (IOException e) {
 			// abort recharging
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-			return;
+			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
 		}
 		int initialPowerPackCapacity = Integer.valueOf(powerPackProps.getProperty("power.powerPack.capacity.initial"));
-		while (initialPowerPackCapacity < powerPackCapacity) {
-			if (!solarSailActive) {
-				if (powerPackCapacity >= 2) {
-					// Extend solair sail
-					powerPackCapacity = powerPackCapacity - 2;
-					solarSailActive = true;
-				}
-			}
-			try {
-				wait(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			powerPackCapacity++;
+		while (initialPowerPackCapacity < this.powerPackCapacity) {
+			this.activateSolarSail();
 		}
-		return;
+		try {
+			this.wait(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		this.powerPackCapacity++;
 	}
 
 	@Override
