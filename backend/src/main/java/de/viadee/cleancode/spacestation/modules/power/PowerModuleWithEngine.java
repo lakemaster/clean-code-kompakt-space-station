@@ -11,6 +11,10 @@ public class PowerModuleWithEngine {
 
 	private boolean engineActivated = false;
 
+	public PowerModuleWithEngine(PowerModule powerModule) {
+		this.powerModule = powerModule;
+	}
+
 	public DailyWorkResult doDailyWork() {
 		DailyWorkResult result = this.powerModule.doDailyWork();
 		if (result.getReturnCode().equals("0")) {
@@ -57,7 +61,7 @@ public class PowerModuleWithEngine {
 
 	private int calculatePowerConsumption(Destination destination) {
 		int powerConsumptionBase = 40;
-		int powerConsumption = 0;
+		int powerConsumption;
 		switch (destination) {
 			case RED_PLANET:
 			case ORANGE_PLANET:
